@@ -4,12 +4,94 @@
  * CSS for just Backend enqueued after style.scss
  * which makes it higher in priority.
  */
+.wp-block {
 
-.wp-block-cgb-block-partners-slider  {
-  background: $green;
-  border: 0.2rem solid $black;
-  color: $black;
-  margin: 0 auto;
-  max-width: 740px;
-  padding: 2rem;
+  .wp-block-cgb-block-partners-slider button.add-more-partner {
+    width: 40px;
+    height: 40px;
+    background: #007cba;
+    border-radius: 50%;
+    position: relative;
+    margin: 20px;
+    border: none;
+    font-size: 2em;
+    color: white;
+    line-height: 1;
+  }
+
+  .wp-block-cgb-block-partners-slider .partner-slider {
+    background-color: rgba(255, 255, 255, 0.55);
+    border-radius: 11px;
+    border: 1px solid #cccccc;
+    margin: 10px 5px;
+    padding-bottom: 10px;
+    text-align: center;
+    flex-shrink: 0;
+    width: 250px;
+    height: 100%;
+  }
+
+  .wp-block-partner-content {
+    position: relative;
+    width: 100%;
+    margin-right: 50px;
+
+    .partner__picture {
+      position: relative;
+      display: block;
+      
+      .partner__picture__image {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100%;
+        height: auto;			
+        overflow: hidden;
+        border: none;
+      }
+    }
+  }
+
+  .wp-block-cgb-block-partners-slider .show-button {
+    font-size: .8em;
+    padding-right: 6px;
+  }
+
+  .wp-block-cgb-block-partners-slider .auto-play-label {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .wp-block-cgb-block-partners-slider .auto-play {
+    width: 100px;
+    border: 1px solid;
+    height: 30px !important;
+    overflow-y: hidden !important;
+    padding-left: 5px;
+    position: relative;
+    top: 5px;
+  }
+
+  .partner-slider-wrapper {
+    background-color: white;
+    display: flex;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    padding: 30px 10px;
+    margin: 0 auto;
+    border-radius: 10px;
+  }
+
+  .remove-partner {
+    height: 30px;
+    width: 30px;
+    background: gray;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    cursor: pointer;
+    position: relative;
+    top: 0;
+    left: 40%;
+  }
 }

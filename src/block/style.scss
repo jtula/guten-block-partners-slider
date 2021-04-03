@@ -4,11 +4,40 @@
  * CSS for both Frontend+Backend.
  */
 
-.wp-block-cgb-block-partners-slider  {
-  background: $red;
-  border: 0.2rem solid $black;
-  color: $black;
-  margin: 0 auto;
-  max-width: 740px;
-  padding: 2rem;
+ .wp-block-partner-content-front {
+	position: relative;
+	width: 135px;
+	margin-right: 50px;
+	text-align: center;
+	flex-shrink: 0;
+
+    .partner__picture {
+		line-height: inherit;
+		display: block;
+      
+      .partner__picture__image {
+		position: relative;
+		max-width: 100%;
+		height: auto;
+		border-radius: 0;
+		box-shadow: none
+      }
+    }
+  }
+
+.wp-block-partner-card-main .wp-block-partner-content {
+	padding: 20px;
+	font-size: 11pt;
+	justify-content: center;
+}
+
+.flickity-slider {
+	display: flex;
+	align-items: center;
+}
+
+.wp-block-partner-quote {
+	display: flex;
+	justify-content: center;
+
 }
