@@ -6,10 +6,15 @@
  */
 
 //  Import CSS.
-import './editor.scss';
-import './style.scss';
+import "./editor.scss";
+import "./style.scss";
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
+import {
+	MediaUpload,
+	MediaUploadCheck,
+	PlainText,
+} from "@wordpress/block-editor";
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
 
 /**
@@ -25,16 +30,38 @@ const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.b
  * @return {?WPBlock}          The block, if it has been successfully
  *                             registered; otherwise `undefined`.
  */
-registerBlockType( 'cgb/block-partners-slider', {
+registerBlockType("cgb/block-partners-slider", {
 	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-	title: __( 'partners-slider - CGB Block' ), // Block title.
-	icon: 'shield', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
-	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
+	title: __("partners-slider - CGB Block"), // Block title.
+	icon: "shield", // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
+	category: "common", // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	keywords: [
-		__( 'partners-slider — CGB Block' ),
-		__( 'CGB Example' ),
-		__( 'create-guten-block' ),
+		__("partners-slider — CGB Block"),
+		__("CGB Example"),
+		__("create-guten-block"),
 	],
+	attributes: {
+		id: {
+			source: "attribute",
+			selector: "div.slide",
+			attribute: "id",
+		},
+		showButtons: { type: "boolean", default: true },
+		autoPlay: { type: "number", default: 5000 },
+		partners: {
+			source: "query",
+			default: [],
+			selector: "div.partner",
+			query: {
+				index: { source: "text", selector: "span.partner-index" },
+				image: {
+					source: "attribute",
+					selector: "img",
+					attribute: "src",
+				},
+			},
+		},
+	},
 
 	/**
 	 * The edit function describes the structure of your block in the context of the editor.
@@ -47,22 +74,141 @@ registerBlockType( 'cgb/block-partners-slider', {
 	 * @param {Object} props Props.
 	 * @returns {Mixed} JSX Component.
 	 */
-	edit: ( props ) => {
-		// Creates a <p class='wp-block-cgb-block-partners-slider'></p>.
+	edit: (props) => {
+		const { attributes, className, setAttributes } = props;
+		const { partners, showButtons, autoPlay } = attributes;
+
+		const ALLOWED_MEDIA_TYPES = ["image"];
+
+		if (!attributes.id) {
+			const id = `partner${Math.floor(Math.random() * 100)}`;
+			setAttributes({
+				id,
+			});
+		}
+
+		const partnerList = partners
+			.sort((a, b) => a.index - b.index)
+			.map((partner) => {
+				return (
+					<div key={partner.index} className="partner-slider">
+						<button
+							className="remove-partner"
+							onClick={() => {
+								const newPartners = partners
+									.filter((item) => item.index !== partner.index)
+									.map((t) => {
+										if (t.index > partner.index) {
+											t.index -= 1;
+										}
+
+										return t;
+									});
+
+								setAttributes({
+									partners: newPartners,
+								});
+							}}
+						>
+							x
+						</button>
+						<div className="wp-block-partner-quote">
+							<div className="wp-block-partner-content">
+								<figure className="partner__picture">
+									<MediaUploadCheck>
+										<MediaUpload
+											onSelect={(media) => {
+												const image = media.sizes.medium
+													? media.sizes.medium.url
+													: media.url;
+												const newObject = Object.assign({}, partner, {
+													image,
+												});
+												setAttributes({
+													partners: [
+														...partners.filter(
+															(item) => item.index !== partner.index
+														),
+														newObject,
+													],
+												});
+											}}
+											allowedTypes={ALLOWED_MEDIA_TYPES}
+											type="image"
+											value={partner.image}
+											render={({ open }) =>
+												partner.image ? (
+													<img
+														className="partner__picture__image"
+														src={partner.image}
+														onClick={open}
+													/>
+												) : (
+													<button
+														href="#"
+														className="partner__picture__image"
+														onClick={open}
+													>
+														Select Image
+													</button>
+												)
+											}
+										/>
+									</MediaUploadCheck>
+								</figure>
+							</div>
+						</div>
+					</div>
+				);
+			});
+
+		const handleButtons = () => {
+			setAttributes({ showButtons: !showButtons });
+		};
+
 		return (
-			<div className={ props.className }>
-				<p>— Hello from the backend.</p>
-				<p>
-					CGB BLOCK: <code>partners-slider</code> is a new Gutenberg block
-				</p>
-				<p>
-					It was created via{ ' ' }
-					<code>
-						<a href="https://github.com/ahmadawais/create-guten-block">
-							create-guten-block
-						</a>
-					</code>.
-				</p>
+			<div className={className}>
+				<button
+					className="add-more-partner"
+					onClick={() =>
+						setAttributes({
+							partners: [
+								...attributes.partners,
+								{
+									index: attributes.partners.length,
+									url: "",
+									title: "",
+									content: "",
+									author: "",
+								},
+							],
+						})
+					}
+				>
+					+
+				</button>
+				<label className="show-button" for="show-button">
+					Show Buttons
+				</label>
+				<input
+					type="checkbox"
+					id="show-button"
+					name="show-button"
+					checked={showButtons}
+					onClick={handleButtons}
+				/>
+				<label className="auto-play-label" for="auto-play">
+					Auto Play(ms):
+				</label>
+				<PlainText
+					id="auto-play"
+					name="auto-play"
+					className="auto-play"
+					value={autoPlay}
+					autoFocus
+					onChange={(value) => setAttributes({ autoPlay: value })}
+				/>
+				<div className="partner-slider-wrapper">{partnerList}</div>
 			</div>
 		);
 	},
@@ -78,22 +224,37 @@ registerBlockType( 'cgb/block-partners-slider', {
 	 * @param {Object} props Props.
 	 * @returns {Mixed} JSX Frontend HTML.
 	 */
-	save: ( props ) => {
-		return (
-			<div className={ props.className }>
-				<p>— Hello from the frontend.</p>
-				<p>
-					CGB BLOCK: <code>partners-slider</code> is a new Gutenberg block.
-				</p>
-				<p>
-					It was created via{ ' ' }
-					<code>
-						<a href="https://github.com/ahmadawais/create-guten-block">
-							create-guten-block
-						</a>
-					</code>.
-				</p>
-			</div>
-		);
+	save: ({ attributes }) => {
+		const { id, partners, showButtons, autoPlay } = attributes;
+		const partnersList = partners.map((partner) => {
+			return (
+				<div
+					className="carousel-cell partner-slider partner"
+					key={partner.index}
+				>
+					<span className="partner-index" style={{ display: "none" }}>
+						{partner.index}
+					</span>
+					<div className="wp-block-partner-content-front">
+						{partner.image && (
+							<figure className="partner__picture">
+								<img className="partner__picture__image" src={partner.image} />
+							</figure>
+						)}
+					</div>
+				</div>
+			);
+		});
+
+		if (partners.length > 0) {
+			const str = `{ "groupCells": true, "freeScroll": true, "draggable": true, "contain": true, "autoPlay": ${autoPlay}, "pauseAutoPlayOnHover": false, "prevNextButtons": ${showButtons}, "pageDots": ${showButtons} }`;
+
+			return (
+				<div className="carousel" data-flickity={str} id={id}>
+					{partnersList}
+				</div>
+			);
+		}
+		return null;
 	},
-} );
+});
